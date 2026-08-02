@@ -10,6 +10,8 @@ file(GLOB rlimgui dependencies/lib/rlimgui/*.cpp)
 # Shared include directories
 set(SHARED_INCLUDES
     dependencies/includes
+    dependencies/includes/imgui
+    dependencies/includes/rlimgui
     src/includes
 )
 
@@ -24,8 +26,14 @@ set(SHARED_LIBS
     X11
 )
 
-#Common testing
+# Common testing
 file(GLOB testing src/apps/Testing/*.cpp)
 add_executable(testing ${imgui} ${rlimgui} ${core_src} ${testing})
 target_include_directories(testing PRIVATE ${SHARED_INCLUDES})
 target_link_libraries(testing PRIVATE ${SHARED_LIBS})
+
+# Standalone Docking Test App
+file(GLOB docking_test_src src/apps/DockingTest/*.cpp)
+add_executable(docking_test ${imgui} ${rlimgui} ${docking_test_src})
+target_include_directories(docking_test PRIVATE ${SHARED_INCLUDES})
+target_link_libraries(docking_test PRIVATE ${SHARED_LIBS})

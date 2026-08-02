@@ -1,5 +1,6 @@
 #pragma once
 #include "raylib/raylib.h"
+#include "ConsoleLog.hpp"
 #include "utils.hpp"
 #include <vector>
 #include <string>
@@ -16,6 +17,7 @@ protected:
     int m_lastTargetFps;
     int m_frameTimeIndex;
 
+    bool showConsole;
     bool showPerformance;
 
     // Scene Viewport Management
@@ -26,6 +28,7 @@ protected:
     // Docking & GUI Helpers
     virtual void renderMainMenuBar();
     void performanceGui();
+    void renderConsoleWindow();
 
     // Scene Viewport Factory & API
     int AddSceneViewport(const std::string& name = "Scene Viewport",
@@ -50,5 +53,6 @@ public:
 
     void Run();
 
+    void EnableConsole(bool enable) { showConsole = enable; }
     void EnablePerformanceGui(bool enable) { showPerformance = enable; }
 };

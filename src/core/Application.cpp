@@ -5,7 +5,7 @@
 Application::Application(int width, int height, const char* title)
     : width(width), height(height), title(title), running(true),
       m_targetFps(60), m_lastTargetFps(60), m_frameTimeIndex(0),
-      showPerformance(false),
+      showConsole(true), showPerformance(false),
       nextSceneViewportId(1), activeSceneViewportIndex(0) {
     for (int i = 0; i < 100; ++i) {
         m_frameTimeHistory[i] = 0.0f;
@@ -31,6 +31,7 @@ void Application::renderMainMenuBar() {
         }
 
         if (ImGui::BeginMenu("Windows")) {
+            ImGui::MenuItem("Console Log", nullptr, &showConsole);
             ImGui::MenuItem("Performance Profiler", nullptr, &showPerformance);
             ImGui::EndMenu();
         }
@@ -52,6 +53,15 @@ void Application::performanceGui() {
     ImGui::End();
 }
 
+void Application::renderConsoleWindow() {
+    if (!showConsole) return;
+
+    if (ImGui::Begin("Console Log", &showConsole)) {
+        ConsoleLog::Get().Draw("Console Log");
+    }
+    ImGui::End();
+}
+
 void Application::Run() {
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(width, height, title);
@@ -59,9 +69,13 @@ void Application::Run() {
 
     rlImGuiSetup(true);
 
-    // Enable Dear ImGui Native Docking (Layouts loaded & saved via imgui.ini automatically)
+    // Enable Dear ImGui Native Docking
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+    // Register Raylib Trace Log Callback & Add Initial Console Entry
+    SetTraceLogCallback(RaylibTraceLogCallback);
+    ConsoleLog::Get().AddLog(LogLevel::Info, "%s Console Log initialized.", title);
 
     Init();
 
@@ -78,6 +92,7 @@ void Application::Run() {
 
         Update(deltaTime);
 
+        // 1. Offscreen Scene Pass
         sceneViewportsRender();
 
         // 2. Main Screen Rendering & ImGui DockSpace Pass
@@ -88,12 +103,12 @@ void Application::Run() {
 
             renderMainMenuBar();
 
-            // Submit Central DockSpace over Main Viewport (ImGui loads/saves layout to imgui.ini automatically)
+            // Submit Central DockSpace over Main Viewport
             ImGuiDockNodeFlags dockspaceFlags = ImGuiDockNodeFlags_PassthruCentralNode;
             ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), dockspaceFlags);
 
             sceneViewportInputs(deltaTime);
-
+            renderConsoleWindow();
             performanceGui();
 
             rlImGuiEnd();

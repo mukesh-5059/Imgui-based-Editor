@@ -1,7 +1,6 @@
 #include "raylib/raylib.h"
 #include "rlimgui/rlImGui.h"
 #include "imgui/imgui.h"
-#include "imgui/imgui_internal.h"
 
 int main() {
     // 1. Initialize Raylib window

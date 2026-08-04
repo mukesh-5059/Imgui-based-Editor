@@ -25,10 +25,25 @@ protected:
     int nextSceneViewportId;
     int activeSceneViewportIndex;
 
+    // Texture Viewport Management
+    std::vector<TextureViewport> textureViewports;
+    int nextViewportId;
+
     // Docking & GUI Helpers
     virtual void renderMainMenuBar();
     void performanceGui();
     void renderConsoleWindow();
+
+    // Texture Viewport Factory & API
+    int AddTextureViewport(const std::string& initialPath = "");
+    int AddTextureViewport(Texture2D texture, const std::string& name = "", std::function<Texture2D()> reloadCallback = nullptr, bool ownsTexture = false, bool canClose = true);
+    void RemoveTextureViewport(int index);
+    void SetTextureViewportCallback(int viewportId, std::function<Texture2D()> reloadCallback);
+    void SetTextureViewportTexture(int viewportId, Texture2D texture, bool ownsTexture = false);
+    void ReloadTextureViewport(int viewportId);
+    void ReloadTextureViewport(TextureViewport& vp);
+    TextureViewport* GetTextureViewport(int viewportId);
+    void textureViewportInputs(float dt);
 
     // Scene Viewport Factory & API
     int AddSceneViewport(const std::string& name = "Scene Viewport",

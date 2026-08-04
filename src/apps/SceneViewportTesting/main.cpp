@@ -1,7 +1,7 @@
 #include "Application.hpp"
 #include "raylib/raylib.h"
 
-class ViewportTestingApp : public Application {
+class SceneViewportTestingApp : public Application {
 private:
     Camera3D camera3D = { 0 };
     float cubeRotation = 0.0f;
@@ -20,9 +20,9 @@ protected:
         camera3D.fovy     = 45.0f;
         camera3D.projection = CAMERA_PERSPECTIVE;
 
-        // Register Viewport 1 with 3D draw & input callbacks
+        // Register Scene Viewport 1 (3D Camera View)
         AddSceneViewport(
-            "3D Viewport",
+            "3D Scene Viewport",
             [this]() {
                 BeginMode3D(camera3D);
                     DrawCubeWires({ 0.0f, 0.0f, 0.0f }, 2.0f, 2.0f, 2.0f, RED);
@@ -30,7 +30,7 @@ protected:
                     DrawGrid(10, 1.0f);
                 EndMode3D();
 
-                DrawText("3D Viewport (Bouncing Gold Sphere)", 20, 20, 20, RAYWHITE);
+                DrawText("3D Scene Viewport (Bouncing Gold Sphere)", 20, 20, 20, RAYWHITE);
             },
             [this](SceneViewport& svp, float dt) {
                 if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
@@ -39,9 +39,9 @@ protected:
             }
         );
 
-        // Register Viewport 2 with 2D draw & input callbacks
+        // Register Scene Viewport 2 (2D Minimap View)
         AddSceneViewport(
-            "2D Minimap View",
+            "2D Minimap Viewport",
             [this]() {
                 DrawText("2D Minimap (Click & Drag Blue Circle)", 20, 20, 20, YELLOW);
                 DrawCircleV(circlePos, 40.0f, BLUE);
@@ -71,11 +71,11 @@ protected:
     }
 
 public:
-    ViewportTestingApp() : Application(1280, 720, "Viewport Testing Application") {}
+    SceneViewportTestingApp() : Application(1280, 720, "Scene Viewport Testing Application") {}
 };
 
 int main() {
-    ViewportTestingApp app;
+    SceneViewportTestingApp app;
     app.Run();
     return 0;
 }

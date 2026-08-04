@@ -28,3 +28,24 @@ struct SceneViewport {
     std::function<void(SceneViewport& svp, float dt)> inputCallback = nullptr;
     std::function<void(SceneViewport&, Vector2 normPos)> clickCallback = nullptr;
 };
+
+// Texture Viewport Structure (Disk / Memory GPU Texture Preview & Callbacks)
+struct TextureViewport {
+    int id = 0;
+    std::string name;
+    char filePath[512] = "";
+    std::string loadedPath;
+    Texture2D texture = { 0 };
+    bool isLoaded = false;
+    bool open = true;
+    bool canClose = true;
+    bool ownsTexture = true;
+    bool pendingReload = false; // Set to true by async file picker thread to trigger GPU texture reload on main thread
+
+    bool isVisible = false;
+    bool isHovered = false;
+    bool isActive = false;
+
+    // Callback function invoked to refresh / reload GPU texture
+    std::function<Texture2D()> reloadCallback = nullptr;
+};

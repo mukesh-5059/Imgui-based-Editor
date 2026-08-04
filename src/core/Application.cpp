@@ -1,18 +1,25 @@
 #include "Application.hpp"
 #include "imgui/imgui.h"
 #include "rlimgui/rlImGui.h"
+#include "FilePicker.hpp"
 
 Application::Application(int width, int height, const char* title)
     : width(width), height(height), title(title), running(true),
       m_targetFps(60), m_lastTargetFps(60), m_frameTimeIndex(0),
       showConsole(true), showPerformance(false),
-      nextSceneViewportId(1), activeSceneViewportIndex(0) {
+      nextSceneViewportId(1), activeSceneViewportIndex(0), nextViewportId(1) {
     for (int i = 0; i < 100; ++i) {
         m_frameTimeHistory[i] = 0.0f;
     }
 }
 
 Application::~Application() {
+    for (auto& vp : textureViewports) {
+        if (vp.isLoaded && vp.ownsTexture && vp.texture.id > 0) {
+            UnloadTexture(vp.texture);
+            vp.isLoaded = false;
+        }
+    }
     for (auto& svp : sceneViewports) {
         if (svp.isLoaded && svp.renderTexture.id > 0) {
             UnloadRenderTexture(svp.renderTexture);
@@ -108,8 +115,12 @@ void Application::Run() {
             ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), dockspaceFlags);
 
             sceneViewportInputs(deltaTime);
+            textureViewportInputs(deltaTime);
             renderConsoleWindow();
             performanceGui();
+
+            // Render Custom ImGui File Picker Modal Dialog
+            FilePicker::Get().Draw();
 
             rlImGuiEnd();
 

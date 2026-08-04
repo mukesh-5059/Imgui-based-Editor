@@ -26,13 +26,19 @@ set(SHARED_LIBS
     X11
 )
 
-# Common testing
-file(GLOB testing src/apps/Testing/*.cpp)
-add_executable(testing ${imgui} ${rlimgui} ${core_src} ${testing})
-target_include_directories(testing PRIVATE ${SHARED_INCLUDES})
-target_link_libraries(testing PRIVATE ${SHARED_LIBS})
+# 1. Scene Viewport Testing Executable Target
+file(GLOB scene_viewport_test_src src/apps/SceneViewportTesting/*.cpp)
+add_executable(sceneviewport_test ${imgui} ${rlimgui} ${core_src} ${scene_viewport_test_src})
+target_include_directories(sceneviewport_test PRIVATE ${SHARED_INCLUDES})
+target_link_libraries(sceneviewport_test PRIVATE ${SHARED_LIBS})
 
-# Standalone Docking Test App
+# 2. Texture Viewport Testing Executable Target
+file(GLOB texture_viewport_test_src src/apps/TextureViewportTesting/*.cpp)
+add_executable(textureviewport_test ${imgui} ${rlimgui} ${core_src} ${texture_viewport_test_src})
+target_include_directories(textureviewport_test PRIVATE ${SHARED_INCLUDES})
+target_link_libraries(textureviewport_test PRIVATE ${SHARED_LIBS})
+
+# 3. Standalone Docking Test Executable Target
 file(GLOB docking_test_src src/apps/DockingTest/*.cpp)
 add_executable(docking_test ${imgui} ${rlimgui} ${docking_test_src})
 target_include_directories(docking_test PRIVATE ${SHARED_INCLUDES})

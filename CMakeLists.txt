@@ -38,7 +38,19 @@ add_executable(textureviewport_test ${imgui} ${rlimgui} ${core_src} ${texture_vi
 target_include_directories(textureviewport_test PRIVATE ${SHARED_INCLUDES})
 target_link_libraries(textureviewport_test PRIVATE ${SHARED_LIBS})
 
-# 3. Standalone Docking Test Executable Target
+# 3. Inspector & Custom GUI Testing Executable Target
+file(GLOB inspector_test_src src/apps/InspectorTesting/*.cpp)
+add_executable(inspector_test ${imgui} ${rlimgui} ${core_src} ${inspector_test_src})
+target_include_directories(inspector_test PRIVATE ${SHARED_INCLUDES})
+target_link_libraries(inspector_test PRIVATE ${SHARED_LIBS})
+
+# 4. Camera Controllers Testing Executable Target
+file(GLOB camera_test_src src/apps/CameraTesting/*.cpp)
+add_executable(camera_test ${imgui} ${rlimgui} ${core_src} ${camera_test_src})
+target_include_directories(camera_test PRIVATE ${SHARED_INCLUDES})
+target_link_libraries(camera_test PRIVATE ${SHARED_LIBS})
+
+# 5. Standalone Docking Test Executable Target
 file(GLOB docking_test_src src/apps/DockingTest/*.cpp)
 add_executable(docking_test ${imgui} ${rlimgui} ${docking_test_src})
 target_include_directories(docking_test PRIVATE ${SHARED_INCLUDES})

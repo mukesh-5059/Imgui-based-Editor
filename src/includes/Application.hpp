@@ -19,6 +19,7 @@ protected:
 
     bool showConsole;
     bool showPerformance;
+    bool showInspector;
 
     // Scene Viewport Management
     std::vector<SceneViewport> sceneViewports;
@@ -33,6 +34,11 @@ protected:
     virtual void renderMainMenuBar();
     void performanceGui();
     void renderConsoleWindow();
+    void renderInspectorWindow();
+
+    // Virtual GUI Hooks for Custom Derived Applications
+    virtual void onInspectorGui() {}
+    virtual void onCustomGui() {}
 
     // Texture Viewport Factory & API
     int AddTextureViewport(const std::string& initialPath = "");
@@ -70,4 +76,5 @@ public:
 
     void EnableConsole(bool enable) { showConsole = enable; }
     void EnablePerformanceGui(bool enable) { showPerformance = enable; }
+    void EnableInspector(bool enable) { showInspector = enable; }
 };

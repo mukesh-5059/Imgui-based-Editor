@@ -1,6 +1,6 @@
 #include "Application.hpp"
 #include "imgui/imgui.h"
-#include "rlImGui.h"
+#include "rlimgui/rlImGui.h"
 #include "utils.hpp"
 
 int Application::AddSceneViewport(const std::string& name,
@@ -44,80 +44,90 @@ void Application::RemoveSceneViewport(int index) {
     }
 }
 
-void Application::sceneViewportsRender(){
-        // 1. Offscreen Scene Pass (Renders offscreen IF visible on screen, hovered, active, or on initial draw)
-        for (size_t i = 0; i < sceneViewports.size(); ++i) {
-            auto& svp = sceneViewports[i];
-            if (!svp.isLoaded || svp.renderTexture.id == 0) {
-                svp.renderTexture = LoadRenderTexture(width, height);
-                SetTextureFilter(svp.renderTexture.texture, TEXTURE_FILTER_BILINEAR);
-                svp.isLoaded = true;
-            }
-            if (svp.isVisible || svp.isHovered || svp.isActive || !svp.hasDrawnOnce) {
-                BeginTextureMode(svp.renderTexture);
-                    ClearBackground(DARKGRAY);
-                    if (svp.drawCallback) {
-                        svp.drawCallback();
-                    }
-                EndTextureMode();
-                svp.hasDrawnOnce = true;
-            }
+void Application::sceneViewportsRender() {
+    // 1. Offscreen Scene Pass (Renders offscreen IF visible on screen, hovered, active, or on initial draw)
+    for (size_t i = 0; i < sceneViewports.size(); ++i) {
+        auto& svp = sceneViewports[i];
+        if (!svp.isLoaded || svp.renderTexture.id == 0) {
+            svp.renderTexture = LoadRenderTexture(width, height);
+            SetTextureFilter(svp.renderTexture.texture, TEXTURE_FILTER_BILINEAR);
+            svp.isLoaded = true;
         }
+        if (svp.isVisible || svp.isHovered || svp.isActive || !svp.hasDrawnOnce) {
+            BeginTextureMode(svp.renderTexture);
+                ClearBackground(DARKGRAY);
+                if (svp.drawCallback) {
+                    svp.drawCallback();
+                }
+            EndTextureMode();
+            svp.hasDrawnOnce = true;
+        }
+    }
 }
 
-void Application::sceneViewportInputs(float dt){
-            int removeIndex = -1;
-            for (size_t i = 0; i < sceneViewports.size(); ++i) {
-                auto& svp = sceneViewports[i];
-                bool* openPtr = svp.canClose ? &svp.open : nullptr;
+void Application::sceneViewportInputs(float dt) {
+    int removeIndex = -1;
+    for (size_t i = 0; i < sceneViewports.size(); ++i) {
+        auto& svp = sceneViewports[i];
+        bool* openPtr = svp.canClose ? &svp.open : nullptr;
 
-                if (ImGui::Begin(svp.name.c_str(), openPtr)) {
-                    // ImGui::Begin() returned TRUE -> Tab is currently visible on screen!
-                    svp.isVisible = true;
+        if (ImGui::Begin(svp.name.c_str(), openPtr)) {
+            svp.isVisible = true;
 
-                    ImVec2 avail = ImGui::GetContentRegionAvail();
-                    if (avail.x > 0 && avail.y > 0 && svp.isLoaded && svp.renderTexture.id > 0) {
-                        rlImGuiImageRenderTextureFit(&svp.renderTexture, true);
+            ImVec2 avail = ImGui::GetContentRegionAvail();
+            if (avail.x > 0 && avail.y > 0 && svp.isLoaded && svp.renderTexture.id > 0) {
+                rlImGuiImageRenderTextureFit(&svp.renderTexture, true);
 
-                        bool isHovered = ImGui::IsItemHovered();
-                        bool isActive  = ImGui::IsItemActive();
+                bool isHovered = ImGui::IsItemHovered();
+                bool isActive  = ImGui::IsItemActive();
 
-                        svp.isHovered = isHovered;
-                        svp.isActive  = isActive;
+                svp.isHovered = isHovered;
+                svp.isActive  = isActive;
+                svp.isClicked = ImGui::IsItemClicked();
+                svp.isDoubleClicked = isHovered && ImGui::IsMouseDoubleClicked(0);
 
-                        if (isHovered || isActive) {
-                            ImVec2 minP = ImGui::GetItemRectMin();
-                            ImVec2 sizeP = ImGui::GetItemRectSize();
-                            ImVec2 mouseP = ImGui::GetMousePos();
+                if (isHovered || isActive) {
+                    ImVec2 minP = ImGui::GetItemRectMin();
+                    ImVec2 sizeP = ImGui::GetItemRectSize();
+                    ImVec2 mouseP = ImGui::GetMousePos();
 
-                            if (sizeP.x > 0.0f && sizeP.y > 0.0f) {
-                                svp.mousePosNorm.x = (mouseP.x - minP.x) / sizeP.x;
-                                svp.mousePosNorm.y = (mouseP.y - minP.y) / sizeP.y;
-                                svp.mousePosLocal.x = mouseP.x - minP.x;
-                                svp.mousePosLocal.y = mouseP.y - minP.y;
-                            }
+                    if (sizeP.x > 0.0f && sizeP.y > 0.0f) {
+                        svp.mousePosNorm.x = (mouseP.x - minP.x) / sizeP.x;
+                        svp.mousePosNorm.y = (mouseP.y - minP.y) / sizeP.y;
+                        svp.mousePosLocal.x = mouseP.x - minP.x;
+                        svp.mousePosLocal.y = mouseP.y - minP.y;
+                    }
 
-                            if (svp.inputCallback) {
-                                svp.inputCallback(svp, dt);
-                            }
+                    if (svp.isClicked) {
+                        svp.clickPosNorm = svp.mousePosNorm;
+                        svp.clickPosLocal = svp.mousePosLocal;
+                        if (svp.clickCallback) {
+                            svp.clickCallback(svp, svp.clickPosNorm);
                         }
                     }
-                } else {
-                    // Tab is hidden behind another tab or collapsed!
-                    svp.isVisible = false;
-                    svp.isHovered = false;
-                    svp.isActive  = false;
-                }
-                ImGui::End();
 
-                if (svp.canClose && !svp.open) {
-                    removeIndex = (int)i;
+                    if (svp.inputCallback) {
+                        svp.inputCallback(svp, dt);
+                    }
                 }
             }
+        } else {
+            svp.isVisible = false;
+            svp.isHovered = false;
+            svp.isActive  = false;
+            svp.isClicked = false;
+            svp.isDoubleClicked = false;
+        }
+        ImGui::End();
 
-            if (removeIndex >= 0) {
-                RemoveSceneViewport(removeIndex);
-            }
+        if (svp.canClose && !svp.open) {
+            removeIndex = (int)i;
+        }
+    }
+
+    if (removeIndex >= 0) {
+        RemoveSceneViewport(removeIndex);
+    }
 }
 
 SceneViewport* Application::GetActiveSceneViewport() {
@@ -132,4 +142,37 @@ SceneViewport* Application::GetSceneViewport(int viewportId) {
         if (svp.id == viewportId) return &svp;
     }
     return nullptr;
+}
+
+// Standalone Viewport Helper Functions
+Vector2 GetViewportMousePosNorm(const SceneViewport& svp) {
+    return svp.mousePosNorm;
+}
+
+Vector2 GetViewportMousePosLocal(const SceneViewport& svp) {
+    return svp.mousePosLocal;
+}
+
+Vector2 GetViewportClickPosNorm(const SceneViewport& svp) {
+    return svp.clickPosNorm;
+}
+
+Vector2 GetViewportClickPosLocal(const SceneViewport& svp) {
+    return svp.clickPosLocal;
+}
+
+Ray GetViewportMouseRay(const SceneViewport& svp, const Camera3D& camera) {
+    Vector2 screenPos = {
+        svp.mousePosNorm.x * (float)svp.renderTexture.texture.width,
+        svp.mousePosNorm.y * (float)svp.renderTexture.texture.height
+    };
+    return GetScreenToWorldRay(screenPos, camera);
+}
+
+bool IsViewportClicked(const SceneViewport& svp, MouseButton button) {
+    return svp.isClicked && IsMouseButtonPressed(button);
+}
+
+bool IsViewportDoubleClicked(const SceneViewport& svp, MouseButton button) {
+    return svp.isDoubleClicked;
 }

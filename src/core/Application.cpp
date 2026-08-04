@@ -6,7 +6,7 @@
 Application::Application(int width, int height, const char* title)
     : width(width), height(height), title(title), running(true),
       m_targetFps(60), m_lastTargetFps(60), m_frameTimeIndex(0),
-      showConsole(true), showPerformance(false),
+      showConsole(true), showPerformance(false), showInspector(true),
       nextSceneViewportId(1), activeSceneViewportIndex(0), nextViewportId(1) {
     for (int i = 0; i < 100; ++i) {
         m_frameTimeHistory[i] = 0.0f;
@@ -38,6 +38,7 @@ void Application::renderMainMenuBar() {
         }
 
         if (ImGui::BeginMenu("Windows")) {
+            ImGui::MenuItem("Inspector", nullptr, &showInspector);
             ImGui::MenuItem("Console Log", nullptr, &showConsole);
             ImGui::MenuItem("Performance Profiler", nullptr, &showPerformance);
             ImGui::EndMenu();
@@ -65,6 +66,15 @@ void Application::renderConsoleWindow() {
 
     if (ImGui::Begin("Console Log", &showConsole)) {
         ConsoleLog::Get().Draw("Console Log");
+    }
+    ImGui::End();
+}
+
+void Application::renderInspectorWindow() {
+    if (!showInspector) return;
+
+    if (ImGui::Begin("Inspector", &showInspector)) {
+        onInspectorGui();
     }
     ImGui::End();
 }
@@ -117,7 +127,11 @@ void Application::Run() {
             sceneViewportInputs(deltaTime);
             textureViewportInputs(deltaTime);
             renderConsoleWindow();
+            renderInspectorWindow();
             performanceGui();
+
+            // Call Virtual Custom GUI Hook for User-Defined Windows
+            onCustomGui();
 
             // Render Custom ImGui File Picker Modal Dialog
             FilePicker::Get().Draw();

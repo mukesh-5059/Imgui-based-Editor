@@ -20,6 +20,10 @@ struct SceneViewport {
 
     Vector2 mousePosNorm = { 0.0f, 0.0f };   // Normalized (0.0 to 1.0)
     Vector2 mousePosLocal = { 0.0f, 0.0f };  // Local Pixel Coordinates inside viewport
+    Vector2 clickPosNorm = { 0.0f, 0.0f };   // Normalized mouse position at click instant
+    Vector2 clickPosLocal = { 0.0f, 0.0f };  // Local pixel mouse position at click instant
+    bool isClicked = false;
+    bool isDoubleClicked = false;
 
     void* userData = nullptr;
 
@@ -49,3 +53,12 @@ struct TextureViewport {
     // Callback function invoked to refresh / reload GPU texture
     std::function<Texture2D()> reloadCallback = nullptr;
 };
+
+// Standalone Viewport Utility Helper Functions
+Vector2 GetViewportMousePosNorm(const SceneViewport& svp);
+Vector2 GetViewportMousePosLocal(const SceneViewport& svp);
+Vector2 GetViewportClickPosNorm(const SceneViewport& svp);
+Vector2 GetViewportClickPosLocal(const SceneViewport& svp);
+Ray GetViewportMouseRay(const SceneViewport& svp, const Camera3D& camera);
+bool IsViewportClicked(const SceneViewport& svp, MouseButton button = MOUSE_BUTTON_LEFT);
+bool IsViewportDoubleClicked(const SceneViewport& svp, MouseButton button = MOUSE_BUTTON_LEFT);

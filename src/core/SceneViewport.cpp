@@ -162,11 +162,15 @@ Vector2 GetViewportClickPosLocal(const SceneViewport& svp) {
 }
 
 Ray GetViewportMouseRay(const SceneViewport& svp, const Camera3D& camera) {
+    int vpWidth = svp.renderTexture.texture.width > 0 ? svp.renderTexture.texture.width : 1280;
+    int vpHeight = svp.renderTexture.texture.height > 0 ? svp.renderTexture.texture.height : 720;
+
     Vector2 screenPos = {
-        svp.mousePosNorm.x * (float)svp.renderTexture.texture.width,
-        svp.mousePosNorm.y * (float)svp.renderTexture.texture.height
+        svp.mousePosNorm.x * (float)vpWidth,
+        svp.mousePosNorm.y * (float)vpHeight
     };
-    return GetScreenToWorldRay(screenPos, camera);
+
+    return GetScreenToWorldRayEx(screenPos, camera, vpWidth, vpHeight);
 }
 
 bool IsViewportClicked(const SceneViewport& svp, MouseButton button) {

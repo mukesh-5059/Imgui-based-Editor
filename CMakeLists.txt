@@ -50,7 +50,13 @@ add_executable(camera_test ${imgui} ${rlimgui} ${core_src} ${camera_test_src})
 target_include_directories(camera_test PRIVATE ${SHARED_INCLUDES})
 target_link_libraries(camera_test PRIVATE ${SHARED_LIBS})
 
-# 5. Standalone Docking Test Executable Target
+# 5. Viewport Utilities Testing Executable Target
+file(GLOB utils_test_src src/apps/UtilsTesting/*.cpp)
+add_executable(utils_test ${imgui} ${rlimgui} ${core_src} ${utils_test_src})
+target_include_directories(utils_test PRIVATE ${SHARED_INCLUDES})
+target_link_libraries(utils_test PRIVATE ${SHARED_LIBS})
+
+# 6. Standalone Docking Test Executable Target
 file(GLOB docking_test_src src/apps/DockingTest/*.cpp)
 add_executable(docking_test ${imgui} ${rlimgui} ${docking_test_src})
 target_include_directories(docking_test PRIVATE ${SHARED_INCLUDES})

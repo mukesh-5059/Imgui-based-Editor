@@ -67,6 +67,8 @@ A workspace tab representing a dedicated offscreen render target framebuffer.
   Window title passed to Raylib `InitWindow()`.
 * `bool running`  
   Main loop control flag. When set to `false`, the main execution loop terminates gracefully.
+* `bool fullscreen`  
+  Window fullscreen mode flag. Defaults to `true` so windows open in fullscreen mode.
 
 ### 3.2 Performance & Timing Attributes
 * `int m_targetFps`  
@@ -299,4 +301,14 @@ A workspace tab representing a dedicated offscreen render target framebuffer.
 #### `void EnableInspector(bool enable)`
 * **Access**: `public`
 * **Description**: Toggles visibility of the inspector panel (`showInspector = enable`).
-* **Source**: [Application.hpp](file:///home/mukes/dev/C:///Projects/editor/src/includes/Application.hpp#L106)
+* **Source**: [Application.hpp](file:///home/mukes/dev/C++/Projects/editor/src/includes/Application.hpp#L81)
+
+#### `void EnableFullscreen(bool enable = true)` / `void DisableFullscreen()` / `void SetFullscreen(bool enable)`
+* **Access**: `public`
+* **Description**: Enables or disables fullscreen mode. Can be called prior to `Run()` to configure initial window state or at runtime to toggle fullscreen mode dynamically.
+* **Source**: [Application.hpp](file:///home/mukes/dev/C++/Projects/editor/src/includes/Application.hpp#L83-L85), [Application.cpp](file:///home/mukes/dev/C++/Projects/editor/src/core/Application.cpp#L151-L162)
+
+#### `bool IsFullscreen() const`
+* **Access**: `public`
+* **Description**: Returns `true` if the application window is currently operating in fullscreen mode.
+* **Source**: [Application.hpp](file:///home/mukes/dev/C++/Projects/editor/src/includes/Application.hpp#L86), [Application.cpp](file:///home/mukes/dev/C++/Projects/editor/src/core/Application.cpp#L164-L169)

@@ -20,6 +20,7 @@ protected:
     bool showConsole;
     bool showPerformance;
     bool showInspector;
+    bool fullscreen;
 
     // Scene Viewport Management
     std::vector<SceneViewport> sceneViewports;
@@ -77,4 +78,9 @@ public:
     void EnableConsole(bool enable) { showConsole = enable; }
     void EnablePerformanceGui(bool enable) { showPerformance = enable; }
     void EnableInspector(bool enable) { showInspector = enable; }
+
+    void EnableFullscreen(bool enable = true);
+    void SetFullscreen(bool enable);
+    void DisableFullscreen() { EnableFullscreen(false); }
+    bool IsFullscreen() const;
 };

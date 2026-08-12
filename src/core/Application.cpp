@@ -4,7 +4,7 @@
 #include "FilePicker.hpp"
 
 Application::Application(int width, int height, const char* title)
-    : width(width), height(height), title(title), running(true),
+    : width(width), height(height), title(title), running(true), fullscreen(true),
       m_targetFps(60), m_lastTargetFps(60), m_frameTimeIndex(0),
       showConsole(true), showPerformance(false), showInspector(true),
       nextSceneViewportId(1), activeSceneViewportIndex(0), nextViewportId(1) {
@@ -41,6 +41,10 @@ void Application::renderMainMenuBar() {
             ImGui::MenuItem("Inspector", nullptr, &showInspector);
             ImGui::MenuItem("Console Log", nullptr, &showConsole);
             ImGui::MenuItem("Performance Profiler", nullptr, &showPerformance);
+            bool fs = IsFullscreen();
+            if (ImGui::MenuItem("Fullscreen", "F11", &fs)) {
+                SetFullscreen(fs);
+            }
             ImGui::EndMenu();
         }
 
@@ -80,7 +84,11 @@ void Application::renderInspectorWindow() {
 }
 
 void Application::Run() {
-    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+    unsigned int flags = FLAG_WINDOW_RESIZABLE;
+    if (fullscreen) {
+        flags |= FLAG_FULLSCREEN_MODE;
+    }
+    SetConfigFlags(flags);
     InitWindow(width, height, title);
     SetTargetFPS(60);
 
@@ -98,6 +106,10 @@ void Application::Run() {
 
     while (!WindowShouldClose() && running) {
         float deltaTime = GetFrameTime();
+
+        if (IsKeyPressed(KEY_F11)) {
+            SetFullscreen(!IsFullscreen());
+        }
 
         if (m_targetFps != m_lastTargetFps) {
             SetTargetFPS(m_targetFps);
@@ -144,4 +156,24 @@ void Application::Run() {
     Shutdown();
     rlImGuiShutdown();
     CloseWindow();
+}
+
+void Application::SetFullscreen(bool enable) {
+    fullscreen = enable;
+    if (IsWindowReady()) {
+        if (IsWindowFullscreen() != enable) {
+            ToggleFullscreen();
+        }
+    }
+}
+
+void Application::EnableFullscreen(bool enable) {
+    SetFullscreen(enable);
+}
+
+bool Application::IsFullscreen() const {
+    if (IsWindowReady()) {
+        return IsWindowFullscreen();
+    }
+    return fullscreen;
 }
